@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: project-db
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: 5432
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - project-net
+
+  project:
+    build: .
+    image: project-image
+    container_name: project
+    ports:
+      - "${API_PORT}:8080"
+    environment:
+      CONFIG_PATH: ${CONFIG_PATH}
+      API_KEY: ${API_KEY}
+      API_HOST: ${API_HOST}
+      API_PORT: 8080
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      SSL_MODE: ${SSL_MODE}
+    volumes:
+    depends_on:
+      - postgres
+    networks:
+      - project-net
+
+networks:
+  project-net:
+    driver: bridge
+
+volumes:
+  pgdata:
