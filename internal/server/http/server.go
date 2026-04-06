@@ -1,4 +1,4 @@
-package server
+package httpserver
 
 import (
 	"api_sample/internal/config"

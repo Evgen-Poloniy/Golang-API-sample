@@ -3,7 +3,7 @@ package app
 import (
 	"api_sample/internal/config"
 	"api_sample/internal/repository"
-	"api_sample/internal/server"
+	httpserver "api_sample/internal/server/http"
 	"api_sample/internal/service"
 	"api_sample/internal/transport/http/base_url"
 	v1 "api_sample/internal/transport/http/v1"
@@ -98,7 +98,7 @@ func Run() {
 	defer cancel()
 
 	wg.Add(1)
-	server := server.NewServer(&config.Server, router)
+	server := httpserver.NewServer(&config.Server, router)
 	go func() {
 		defer wg.Done()
 
