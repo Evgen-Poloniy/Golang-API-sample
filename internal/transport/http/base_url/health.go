@@ -1,8 +1,8 @@
-package handler
+package base_url
 
 import (
+	"api_sample/internal/dto"
 	"net/http"
-	"project/internal/dto"
 
 	"github.com/gin-gonic/gin"
 )

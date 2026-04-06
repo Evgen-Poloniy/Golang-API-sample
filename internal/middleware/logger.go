@@ -2,68 +2,56 @@ package middleware
 
 import (
 	"fmt"
-	"os"
-	"project/internal/config"
-	"project/internal/logutil"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
+
+	"api_sample/pkg/logger"
 )
 
-func InitLoggingMiddleware(cfg *config.LoggerConfig) gin.HandlerFunc {
-	logger := logrus.New()
-	logger.SetOutput(os.Stdout)
-	logutil.SetLevel(logger, cfg)
-	logutil.SetFormatter(logger, cfg)
-
+func Logger(logger logger.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
+
 		c.Next()
 
 		latency := time.Since(start)
-		status := c.Writer.Status()
+		statusCode := c.Writer.Status()
 
-		entry := logger.WithFields(logrus.Fields{
-			"status":  status,
-			"method":  c.Request.Method,
-			"path":    c.Request.URL.Path,
-			"ip":      c.ClientIP(),
-			"latency": fmt.Sprintf("%v", latency),
+		fmt.Println(statusCode)
+
+		entry := logger.WithFields(map[string]interface{}{
+			"status_code": statusCode,
+			"method":      c.Request.Method,
+			"path":        c.Request.URL.Path,
+			"ip":          c.ClientIP(),
+			"latency":     fmt.Sprintf("%v", latency),
 		})
 
 		if len(c.Errors) > 0 {
-			err := c.Errors.Last()
-			code := ""
-			message := strings.Join(c.Errors.Errors(), "; ")
+			err := c.Errors.Last().Err
 
-			if meta, ok := err.Meta.(map[string]interface{}); ok {
-				if codeVal, exists := meta["code"]; exists {
-					if str, ok := codeVal.(string); ok {
-						code = str
-					}
-				}
-				if messageVal, exists := meta["message"]; exists {
-					if str, ok := messageVal.(string); ok && str != "" {
-						message = str
-					}
-				}
-			}
+			statusCode, _ = c.MustGet("status_code").(int)
+			code, _ := c.MustGet("code").(string)
 
-			entry = entry.WithFields(logrus.Fields{
-				"code": code,
-			})
+			entry = entry.WithField("code", code)
 
-			if status >= 500 {
-				entry.Error(message)
+			if statusCode >= 500 {
+				entry.Error(err.Error())
 			} else {
-				entry.Warn(message)
+				entry.Warn(err.Error())
 			}
 
 			return
 		}
 
-		entry.Info("request completed")
+		switch {
+		case statusCode >= 500:
+			entry.Error("request completed with error")
+		case statusCode >= 400:
+			entry.Warn("request completed with warning")
+		default:
+			entry.Info("request completed successfully")
+		}
 	}
 }

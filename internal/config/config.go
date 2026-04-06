@@ -15,29 +15,41 @@ type ServerConfig struct {
 	ReadTimeout             time.Duration `yaml:"read_timeout" env-default:"4s"`
 	WriteTimeout            time.Duration `yaml:"write_timeout" env-default:"10s"`
 	TimeForGracefulShutdown time.Duration `yaml:"time_for_graceful_shutdown" env-default:"10s"`
+	ReadHeaderTimeout       time.Duration `yaml:"read_header_timeout" env-default:"2s"`
+	IdleTimeout             time.Duration `yaml:"idle_timeout" env-default:"60s"`
 }
 
 // Database config from env and config.yaml
-type DatabaseConfig struct {
-	Host     string `env:"DB_HOST" env-required:"true"`
-	Port     string `env:"DB_PORT" env-required:"true"`
-	Username string `env:"DB_USER" env-required:"true"`
-	Password string `env:"DB_PASSWORD" env-required:"true"`
-	DBName   string `env:"DB_NAME" env-required:"true"`
-	SSLMode  string `env:"SSL_MODE" env-required:"true" validate:"oneof=disable require"`
-}
+// type DatabaseConfig struct {
+// 	Host     string `env:"DB_HOST" env-required:"true"`
+// 	Port     string `env:"DB_PORT" env-required:"true"`
+// 	Username string `env:"DB_USER" env-required:"true"`
+// 	Password string `env:"DB_PASSWORD" env-required:"true"`
+// 	DBName   string `env:"DB_NAME" env-required:"true"`
+// 	SSLMode  string `env:"SSL_MODE" env-required:"true" validate:"oneof=disable require"`
+// }
 
 // Logger config from config.yaml
 type LoggerConfig struct {
-	Level  string `yaml:"level" env-default:"info" validate:"oneof=debug info warn error"`
-	Format string `yaml:"format" env-default:"json" validate:"oneof=text json"`
+	Level  string   `yaml:"level" env-default:"info" validate:"oneof=trace debug info warn error panic fatal"`
+	Format string   `yaml:"format" env-default:"json" validate:"oneof=text json"`
+	Output string   `yaml:"output" env-default:"stdout" validate:"oneof=stdout stderr"`
+	Files  []string `yaml:"files"`
+}
+
+type APIInfo struct {
+	ServiceName string `yaml:"service"`
+	Version     string `yaml:"version"`
+	Description string `yaml:"description"`
+	APIDocsPath string `yaml:"api_docs_path"`
 }
 
 // Dataclass with all configs
 type Config struct {
-	Server   ServerConfig   `yaml:"server"`
-	Database DatabaseConfig `yaml:"-"`
-	Logger   LoggerConfig   `yaml:"logger"`
+	Server ServerConfig `yaml:"server"`
+	// Database DatabaseConfig `yaml:"-"`
+	Logger LoggerConfig `yaml:"logger"`
+	Info   APIInfo      `yaml:"info"`
 }
 
 // Load config from config/config.yaml

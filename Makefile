@@ -1,8 +1,8 @@
-TARGET := project
+TARGET := api_sample
 CGO_ENABLED := 0
 GOOS := linux
 GOARCH := amd64
-CMD_API_DIR := cmd/api
+CMD_API_DIR := cmd/api_sample
 BIN_DIR := bin
 
 GO_ENV_VAR := CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH)
@@ -21,6 +21,9 @@ run:
 
 test:
 	go test -cover -count=1 -v ./...
+
+swag-init:
+	swag init -g internal/app/app.go
 
 build:
 	docker-compose build

@@ -1,4 +1,5 @@
+.vscode
 .env
 config.yaml
-.vscode
 bin
+logs

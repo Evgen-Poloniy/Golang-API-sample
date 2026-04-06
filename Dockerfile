@@ -11,12 +11,12 @@ COPY internal/ ./internal/
 COPY pkg/ ./pkg/
 COPY docs/ ./docs
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./bin/project ./cmd/api/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./bin/project ./cmd/api_sample/main.go
 
 FROM scratch
 
 WORKDIR /app
 
-COPY --from=builder /app/bin/project ./
+COPY --from=builder /app/bin/app ./
 
-CMD ["./project"]
+CMD ["./app"]

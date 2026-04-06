@@ -9,3 +9,13 @@ server:
 logger:
   level: info
   format: json
+  output: stdout
+  files:
+    - filepath
+
+# API information
+info:
+  service: Golang API sample
+  version: 1.0.0
+  description: It is the sample of API for Golang
+  api_docs_path: /swagger/index.html

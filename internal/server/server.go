@@ -1,10 +1,10 @@
 package server
 
 import (
+	"api_sample/internal/config"
 	"context"
 	"fmt"
 	"net/http"
-	"project/internal/config"
 )
 
 // Wrapper for http server
@@ -16,11 +16,13 @@ type Server struct {
 func NewServer(config *config.ServerConfig, handler http.Handler) *Server {
 	return &Server{
 		httpServer: &http.Server{
-			Addr:           fmt.Sprintf("%s:%s", config.Host, config.Port),
-			MaxHeaderBytes: config.MaxHeaderBytes,
-			Handler:        handler,
-			ReadTimeout:    config.ReadTimeout,
-			WriteTimeout:   config.WriteTimeout,
+			Addr:              fmt.Sprintf("%s:%s", config.Host, config.Port),
+			MaxHeaderBytes:    config.MaxHeaderBytes,
+			Handler:           handler,
+			ReadTimeout:       config.ReadTimeout,
+			WriteTimeout:      config.WriteTimeout,
+			ReadHeaderTimeout: config.ReadHeaderTimeout,
+			IdleTimeout:       config.IdleTimeout,
 		},
 	}
 }

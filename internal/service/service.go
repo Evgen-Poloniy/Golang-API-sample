@@ -1,16 +1,19 @@
 package service
 
-import "project/internal/repository"
+import (
+	"api_sample/internal/repository"
+	"api_sample/pkg/logger"
+)
 
-type ServiceInterface interface {
+type Service interface {
 }
 
-type ServiceStruct struct {
-	ServiceInterface
+type ServiceUsecase struct {
+	Service
 }
 
-func NewService(repository repository.RepositoryInterface) *ServiceStruct {
-	return &ServiceStruct{
-		ServiceInterface: NewServiceImplementation(repository),
+func NewService(repository repository.Repository, logger logger.Logger) *ServiceUsecase {
+	return &ServiceUsecase{
+		Service: NewTODOService(repository, logger),
 	}
 }

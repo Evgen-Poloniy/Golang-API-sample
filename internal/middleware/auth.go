@@ -1,9 +1,7 @@
 package middleware
 
 import (
-	"errors"
-	"project/internal/dto"
-	"net/http"
+	errs "api_sample/pkg/errors"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -14,41 +12,23 @@ func APIKeyAuth(apiKeyHash []byte) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			err := errors.New("Authorization header is required")
-			c.Error(err)
-			c.AbortWithStatusJSON(http.StatusUnauthorized, dto.ErrorResponse{
-				Error: dto.Error{
-					Code:    "UNAUTHORIZED",
-					Message: err.Error(),
-				},
-			})
+			c.Error(errs.ErrMissingAuthHeader)
+			c.Abort()
 			return
 		}
 
 		const prefix = "API-KEY "
 		if !strings.HasPrefix(authHeader, prefix) {
-			err := errors.New("Authorization header must start with 'API-KEY '")
-			c.Error(err)
-			c.AbortWithStatusJSON(http.StatusUnauthorized, dto.ErrorResponse{
-				Error: dto.Error{
-					Code:    "UNAUTHORIZED",
-					Message: err.Error(),
-				},
-			})
+			c.Error(errs.ErrWrongAuthHeader)
+			c.Abort()
 			return
 		}
 
 		apiKey := strings.TrimPrefix(authHeader, prefix)
 
 		if bcrypt.CompareHashAndPassword(apiKeyHash, []byte(apiKey)) != nil {
-			err := errors.New("invalid API key")
-			c.Error(err)
-			c.AbortWithStatusJSON(http.StatusUnauthorized, dto.ErrorResponse{
-				Error: dto.Error{
-					Code:    "UNAUTHORIZED",
-					Message: err.Error(),
-				},
-			})
+			c.Error(errs.ErrInvalidAPIKey)
+			c.Abort()
 			return
 		}
 
